@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
                 Calculator(
                     state = state,
-                    onClickButton = {},
+                    onClickButton = viewModel::onButtonClick,
                     buttonSpacing = buttonSpacing,
                     modifier = Modifier
                         .fillMaxSize()

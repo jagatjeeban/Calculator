@@ -1,6 +1,7 @@
 package com.example.calculator
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,13 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +28,7 @@ import androidx.compose.ui.unit.times
 import com.example.calculator.ui.theme.LightGrey
 import com.example.calculator.ui.theme.MediumGrey
 import com.example.calculator.ui.theme.Orange
+import kotlinx.coroutines.delay
 
 @Composable
 fun Calculator(
@@ -107,16 +112,29 @@ fun Calculator(
 
 @Composable
 fun ResultText(state: CalculatorStates) {
-    Text(
-        text = state.firstNumber + (state.operator ?: "") + state.secondNumber,
-        color = Color.White,
-        fontSize = 80.sp,
-        fontWeight = FontWeight.Light,
-        maxLines = 2,
+    val scrollState = rememberScrollState()
+    val finalText = state.firstNumber + (state.operator?.symbol ?: "") + state.secondNumber
+    LaunchedEffect(state.firstNumber, state.operator, state.secondNumber) {
+        delay(100)
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 32.dp)
-    )
+            .horizontalScroll(scrollState)
+            .padding(vertical = 32.dp, horizontal = 15.dp),
+        contentAlignment = Alignment.CenterEnd
+    ){
+        Text(
+            text = finalText,
+            textAlign = TextAlign.End,
+            color = Color.White,
+            fontSize = if(finalText.length <= 10) 70.sp else if(finalText.length <= 15) 50.sp else 30.sp,
+            fontWeight = FontWeight.Light,
+            softWrap = false,
+            maxLines = 1
+        )
+    }
 }
 
 @Composable
@@ -148,7 +166,7 @@ fun ButtonsRow(
                 text = symbol[index],
                 modifier = Modifier
                     .width(buttonWidth)
-                    .height(95.dp)
+                    .height(93.dp)
                     .background(if(symbol[index] == "AC" || symbol[index] == "Del") LightGrey else if(symbol[index] == "/" || symbol[index] == "=" || index == 3) Orange else MediumGrey)
                     .padding(5.dp),
                 onClick = { onClick(symbol[index]) }
